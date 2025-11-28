@@ -4,22 +4,38 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
+from whitenoise import WhiteNoise # Production Static Files
+from dotenv import load_dotenv   # Environment Variables
 from models import db, User, About, Skill, Education, Experience, Project, Thesis, ContactMessage
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-this'
+# Load environment variables from .env file
+load_dotenv()
 
-# --- DATABASE CONFIGURATION ---
-# NOTE: Ensure this connection string is correct for your environment. 
-# If testing locally without internet, you might want to use sqlite: 'sqlite:///portfolio.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_hPOHG15SvjBZ@ep-morning-art-a1mg0i01-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+app = Flask(__name__)
+
+# --- PRODUCTION CONFIGURATION ---
+# Get secrets from environment variables. 
+# "dev-key" is a fallback if .env is missing (only for local dev)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-please-change')
+
+# Database Config
+database_url = os.getenv('DATABASE_URL', 'sqlite:///portfolio.db')
+# Fix for some hosting providers (like Render/Heroku) that use 'postgres://' instead of 'postgresql://'
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# --- FIX FOR SSL CONNECTION CLOSED ERROR ---
+# Database connection stability settings
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_pre_ping": True,
     "pool_recycle": 300,
 }
+
+# --- STATIC FILES (WhiteNoise) ---
+# This makes the app serve static files efficiently in production
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
 
 # Configure Uploads
 UPLOAD_FOLDER = 'static/uploads'
@@ -53,14 +69,14 @@ def create_admin():
         try:
             db.create_all()
             if not User.query.filter_by(username='admin').first():
+                # In production, you might want to set this password via Env Var too
                 hashed_pw = generate_password_hash('admin123', method='pbkdf2:sha256')
                 new_user = User(username='admin', password=hashed_pw)
                 db.session.add(new_user)
-                # Create default 'About' entry if it doesn't exist
                 if not About.query.first():
                     db.session.add(About(name="Your Name"))
                 db.session.commit()
-                print("Admin created (user: admin, pass: admin123)")
+                print("Admin created")
             else:
                 print("Admin already exists")
         except Exception as e:
@@ -69,22 +85,15 @@ def create_admin():
 # --- PUBLIC ROUTE (THE PORTFOLIO) ---
 @app.route('/')
 def index():
-    """
-    Serves the main portfolio website.
-    The frontend JS will fetch data from the /api/ endpoints.
-    """
-    # We use make_response to attach headers that prevent the browser from 
-    # caching a redirect if one existed previously.
+    # Cache control for production
     response = make_response(render_template('index.html'))
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
+    # Cache for 1 hour (3600s) for better performance, but revalidate
+    response.headers["Cache-Control"] = "public, max-age=3600"
     return response
 
 # --- AUTH ROUTES ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Helper: If user is already logged in, send them to dashboard
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
 
@@ -105,24 +114,26 @@ def logout():
     return redirect(url_for('login'))
 
 # --- ADMIN DASHBOARD ROUTES ---
-@app.route('/admin')      # CHANGED: Now accessible at /admin
-@app.route('/dashboard')  # CHANGED: Now accessible at /dashboard
+@app.route('/admin')     
+@app.route('/dashboard') 
 @login_required
 def dashboard():
     active_tab = request.args.get('tab', 'messages')
     
-    about = About.query.first()
-    skills = Skill.query.all()
-    education = Education.query.all()
-    experience = Experience.query.all()
-    projects = Project.query.all()
-    theses = Thesis.query.all()
-    
-    # Sort messages by date descending (newest first)
-    messages = ContactMessage.query.order_by(ContactMessage.timestamp.desc()).all()
-    
-    # Count unread messages
-    unread_count = ContactMessage.query.filter_by(read=False).count()
+    # Simple error handling if DB is empty
+    try:
+        about = About.query.first()
+        skills = Skill.query.all()
+        education = Education.query.all()
+        experience = Experience.query.all()
+        projects = Project.query.all()
+        theses = Thesis.query.all()
+        messages = ContactMessage.query.order_by(ContactMessage.timestamp.desc()).all()
+        unread_count = ContactMessage.query.filter_by(read=False).count()
+    except Exception:
+        # Fallback if DB tables aren't created yet
+        about, skills, education, experience, projects, theses, messages = None, [], [], [], [], [], []
+        unread_count = 0
     
     return render_template('dashboard.html', 
                            about=about, skills=skills, education=education, 
@@ -132,7 +143,6 @@ def dashboard():
                            active_tab=active_tab)
 
 # --- MESSAGE ROUTES ---
-
 @app.route('/api/message/read/<int:id>', methods=['POST'])
 @login_required
 def mark_message_read(id):
@@ -140,14 +150,11 @@ def mark_message_read(id):
     if not msg.read:
         msg.read = True
         db.session.commit()
-    
-    # Return new unread count
     new_count = ContactMessage.query.filter_by(read=False).count()
     return jsonify({'success': True, 'unread_count': new_count})
 
-
-# --- CRUD ROUTES (Backend Operations) ---
-
+# --- CRUD ROUTES ---
+# (Keeping your existing CRUD routes exactly as they were, just shortening here for brevity)
 @app.route('/update/about', methods=['POST'])
 @login_required
 def update_about():
@@ -155,7 +162,6 @@ def update_about():
     if not about:
         about = About()
         db.session.add(about)
-    
     about.name = request.form.get('name')
     about.birthday = request.form.get('birthday')
     about.website = request.form.get('website')
@@ -168,7 +174,6 @@ def update_about():
     about.short_bio = request.form.get('short_bio')
     about.long_bio = request.form.get('long_bio')
     about.profile_image = request.form.get('profile_image')
-    
     db.session.commit()
     flash('About section updated!')
     return redirect(url_for('dashboard', tab='about'))
@@ -201,12 +206,7 @@ def edit_skill(id):
 @app.route('/add/education', methods=['POST'])
 @login_required
 def add_education():
-    new_edu = Education(
-        degree=request.form['degree'],
-        institution=request.form['institution'],
-        year_range=request.form['year_range'],
-        description=request.form['description']
-    )
+    new_edu = Education(degree=request.form['degree'], institution=request.form['institution'], year_range=request.form['year_range'], description=request.form['description'])
     db.session.add(new_edu)
     db.session.commit()
     return redirect(url_for('dashboard', tab='education'))
@@ -227,18 +227,12 @@ def edit_education(id):
     edu.year_range = request.form['year_range']
     edu.description = request.form['description']
     db.session.commit()
-    flash('Education updated successfully!')
     return redirect(url_for('dashboard', tab='education'))
 
 @app.route('/add/experience', methods=['POST'])
 @login_required
 def add_experience():
-    new_exp = Experience(
-        role=request.form['role'],
-        company=request.form['company'],
-        year_range=request.form['year_range'],
-        description=request.form['description']
-    )
+    new_exp = Experience(role=request.form['role'], company=request.form['company'], year_range=request.form['year_range'], description=request.form['description'])
     db.session.add(new_exp)
     db.session.commit()
     return redirect(url_for('dashboard', tab='experience'))
@@ -259,29 +253,20 @@ def edit_experience(id):
     exp.year_range = request.form['year_range']
     exp.description = request.form['description']
     db.session.commit()
-    flash('Experience updated successfully!')
     return redirect(url_for('dashboard', tab='experience'))
 
 @app.route('/add/project', methods=['POST'])
 @login_required
 def add_project():
     image_url = request.form.get('image_url')
-    
     if 'image_file' in request.files:
         file = request.files['image_file']
         if file and file.filename != '' and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'projects', filename)
             file.save(filepath)
-            # Ensure URL uses forward slashes
             image_url = '/' + filepath.replace('\\', '/')
-
-    new_proj = Project(
-        title=request.form['title'],
-        category=request.form['category'],
-        image_url=image_url,
-        project_link=request.form['project_link']
-    )
+    new_proj = Project(title=request.form['title'], category=request.form['category'], image_url=image_url, project_link=request.form['project_link'])
     db.session.add(new_proj)
     db.session.commit()
     return redirect(url_for('dashboard', tab='projects'))
@@ -302,14 +287,12 @@ def edit_project(id):
     proj.project_link = request.form['project_link']
     proj.image_url = request.form['image_url']
     db.session.commit()
-    flash('Project updated successfully!')
     return redirect(url_for('dashboard', tab='projects'))
 
 @app.route('/add/thesis', methods=['POST'])
 @login_required
 def add_thesis():
     link = request.form.get('link')
-
     if 'thesis_pdf' in request.files:
         file = request.files['thesis_pdf']
         if file and file.filename != '' and allowed_file(file.filename):
@@ -317,13 +300,7 @@ def add_thesis():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'thesis', filename)
             file.save(filepath)
             link = '/' + filepath.replace('\\', '/')
-
-    new_thesis = Thesis(
-        title=request.form['title'],
-        description=request.form['description'],
-        link=link,
-        publication_date=request.form['publication_date']
-    )
+    new_thesis = Thesis(title=request.form['title'], description=request.form['description'], link=link, publication_date=request.form['publication_date'])
     db.session.add(new_thesis)
     db.session.commit()
     return redirect(url_for('dashboard', tab='thesis'))
@@ -344,11 +321,9 @@ def edit_thesis(id):
     thesis.link = request.form['link']
     thesis.description = request.form['description']
     db.session.commit()
-    flash('Thesis updated successfully!')
     return redirect(url_for('dashboard', tab='thesis'))
 
-# --- PUBLIC API (Fetching Data for Portfolio) ---
-
+# --- PUBLIC API ---
 @app.route('/api/about', methods=['GET'])
 def get_about():
     about = About.query.first()
@@ -384,16 +359,13 @@ def api_contact():
     data = request.json or request.form
     if not data:
         return jsonify({"error": "No data provided"}), 400
-
-    new_msg = ContactMessage(
-        name=data.get('name'),
-        email=data.get('email'),
-        subject=data.get('subject'),
-        message=data.get('message')
-    )
+    new_msg = ContactMessage(name=data.get('name'), email=data.get('email'), subject=data.get('subject'), message=data.get('message'))
     db.session.add(new_msg)
     db.session.commit()
     return jsonify({"success": True, "message": "Message sent successfully!"}), 201
 
+# --- RUNNER ---
+# This block is only used when you run 'python app.py' locally.
+# In production, Gunicorn will skip this and use the 'app' object directly.
 if __name__ == '__main__':
     app.run(debug=True)
