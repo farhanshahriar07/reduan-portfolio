@@ -16,20 +16,19 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default-dev-key')
 
 # Database Config
-# We replace postgres:// with postgresql:// in case the provider uses the old format
 uri = os.getenv("DATABASE_URL")
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
+app.config['SQLALCHEMY_DATABASE_URI'] = uri or 'sqlite:///portfolio.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_pre_ping": True,
     "pool_recycle": 300,
 }
 
-# Configure Uploads (Note: File uploads won't persist in Vercel/Serverless)
-UPLOAD_FOLDER = '/tmp' # Changed to /tmp for Vercel compatibility
+# Configure Uploads
+UPLOAD_FOLDER = '/tmp' 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -72,8 +71,23 @@ def create_admin():
 
 @app.route('/')
 def index():
-    response = make_response(render_template('index.html'))
-    response.headers["Cache-Control"] = "public, max-age=0" # Disable cache for updates
+    # 1. Fetch all data from DB
+    about = About.query.first()
+    skills = Skill.query.all()
+    education = Education.query.all()
+    experience = Experience.query.all()
+    projects = Project.query.all()
+    theses = Thesis.query.all()
+
+    # 2. Pass data to the template
+    response = make_response(render_template('index.html', 
+                                             about=about, 
+                                             skills=skills, 
+                                             education=education, 
+                                             experience=experience, 
+                                             projects=projects, 
+                                             theses=theses))
+    response.headers["Cache-Control"] = "public, max-age=0"
     return response
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -111,7 +125,6 @@ def dashboard():
         messages = ContactMessage.query.order_by(ContactMessage.timestamp.desc()).all()
         unread_count = ContactMessage.query.filter_by(read=False).count()
     except Exception:
-        # Prevent crash if DB tables missing
         about, skills, education, experience, projects, theses, messages = None, [], [], [], [], [], []
         unread_count = 0
         
@@ -122,7 +135,7 @@ def dashboard():
                            unread_count=unread_count,
                            active_tab=active_tab)
 
-# --- API ROUTES ---
+# --- API ROUTES (Kept for Dashboard usage) ---
 
 @app.route('/api/about', methods=['GET'])
 def get_about():
@@ -154,6 +167,7 @@ def get_thesis():
     thesis = Thesis.query.all()
     return jsonify([t.to_dict() for t in thesis])
 
+# Public Contact Endpoint (Used by JS fetch in index.html)
 @app.route('/api/contact', methods=['POST'])
 def api_contact():
     data = request.json or request.form
@@ -180,7 +194,6 @@ def mark_message_read(id):
     return jsonify({'success': True, 'unread_count': new_count})
 
 # --- CRUD ROUTES ---
-# Note: For images in Vercel, users should use URL strings instead of uploads
 
 @app.route('/update/about', methods=['POST'])
 @login_required
@@ -289,7 +302,6 @@ def edit_experience(id):
 @app.route('/add/project', methods=['POST'])
 @login_required
 def add_project():
-    # Use image_url from form field (URL string)
     db.session.add(Project(
         title=request.form['title'],
         category=request.form['category'],

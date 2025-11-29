@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farhan Shahriar | Software Engineer Portfolio</title>
+    <title>{{ about.name if about and about.name else 'Electrical Engineer' }} | Portfolio</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
@@ -25,10 +25,9 @@
             background-color: var(--bg-dark);
             color: #e0e0e0;
             font-family: 'Rajdhani', sans-serif;
-            overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+            overflow-x: hidden;
         }
 
-        /* Typography */
         h1, h2, h3, .tech-font {
             font-family: 'Orbitron', sans-serif;
             letter-spacing: 2px;
@@ -63,7 +62,7 @@
             border: 2px solid #555;
             box-shadow: inset 0 0 20px #000;
             cursor: pointer;
-            transform: scale(0.8); /* Slightly smaller on mobile default */
+            transform: scale(0.8);
         }
         @media (min-width: 768px) {
             .switch-container { transform: scale(1); }
@@ -103,7 +102,6 @@
             box-shadow: 0 0 20px #0f0;
         }
 
-        /* Main Content Animation */
         #main-content {
             opacity: 0;
             pointer-events: none;
@@ -115,7 +113,6 @@
             pointer-events: all;
         }
 
-        /* Circuit Background Pattern */
         .circuit-bg {
             background-image: 
                 linear-gradient(rgba(10, 21, 37, 0.95), rgba(10, 21, 37, 0.95)),
@@ -125,113 +122,47 @@
             background-size: 100% 100%, 40px 40px, 100px 100px, 100px 100px;
         }
 
-        /* CRT Flicker Animation */
+        .crt-effect { animation: flicker 0.15s infinite; }
         @keyframes flicker {
-            0% { opacity: 0.97; }
-            5% { opacity: 0.95; }
-            10% { opacity: 0.9; }
-            15% { opacity: 0.95; }
-            20% { opacity: 0.99; }
-            50% { opacity: 0.95; }
-            100% { opacity: 0.98; }
+            0% { opacity: 0.97; } 50% { opacity: 0.95; } 100% { opacity: 0.98; }
         }
 
-        .crt-effect {
-            animation: flicker 0.15s infinite;
-        }
-
-        /* Neon Borders & Glows */
-        .neon-border {
-            border: 1px solid var(--primary);
-            box-shadow: 0 0 5px var(--primary), inset 0 0 5px var(--primary);
-        }
-
-        .neon-text {
-            color: var(--primary);
-            text-shadow: var(--text-glow);
-        }
-        
-        .hazard-text {
-            color: var(--secondary);
-            text-shadow: var(--danger-glow);
-        }
-
+        .neon-text { color: var(--primary); text-shadow: var(--text-glow); }
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
             border-color: var(--secondary);
         }
 
-        /* Canvas Overlay for Sparks */
         #spark-canvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50;
         }
+        #osc-canvas { width: 100%; height: 150px; }
 
-        /* Oscilloscope Line */
-        #osc-canvas {
-            width: 100%;
-            height: 150px;
-        }
-
-        /* Timeline Connector */
         .timeline-line::before {
             content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 20px; /* Mobile Position */
-            width: 2px;
+            position: absolute; top: 0; bottom: 0;
+            left: 20px; width: 2px;
             background: var(--primary);
             box-shadow: 0 0 5px var(--primary);
         }
-
         @media (min-width: 768px) {
-            /* Desktop Position */
-            .timeline-line::before {
-                left: 50%;
-                margin-left: -1px;
-            }
+            .timeline-line::before { left: 50%; margin-left: -1px; }
         }
 
-        /* Form styling */
         .input-field {
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #333;
-            color: var(--primary);
-            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0,0,0,0.5); border: 1px solid #333;
+            color: var(--primary); font-family: 'Share Tech Mono', monospace;
         }
         .input-field:focus {
-            outline: none;
-            border-color: var(--secondary);
+            outline: none; border-color: var(--secondary);
             box-shadow: 0 0 10px var(--secondary);
         }
-
-        /* Custom Scrollbar for Thesis Abstract */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #111;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #333;
-            border: 1px solid #00f3ff;
-        }
-        
-        .loading-pulse {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
-        }
-
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #111; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #333; border: 1px solid #00f3ff; }
     </style>
 </head>
 <body class="circuit-bg">
@@ -252,7 +183,7 @@
     <!-- Main Content -->
     <div id="main-content">
         
-        <!-- Mobile Menu Overlay -->
+        <!-- Mobile Menu -->
         <div id="mobile-menu" class="fixed top-0 left-0 w-full h-screen bg-gray-900 z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center space-y-8 bg-opacity-95 backdrop-blur-lg">
             <div class="absolute top-6 right-6 text-cyan-400 cursor-pointer p-2" onclick="toggleMobileMenu()">
                 <i class="fas fa-times text-3xl"></i>
@@ -265,13 +196,17 @@
             <a href="#contact" onclick="toggleMobileMenu()" class="text-2xl mono-font text-yellow-400 hover:text-white">>> CONTACT</a>
         </div>
 
-        <!-- Header / Navbar -->
+        <!-- Header -->
         <header class="fixed w-full z-40 bg-opacity-90 bg-gray-900 border-b border-gray-800 backdrop-blur-sm">
             <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <div class="text-xl md:text-2xl font-bold neon-text tech-font flex items-center gap-2" id="nav-brand">
-                    <i class="fas fa-bolt text-yellow-400"></i> FARHAN.SHAHRIAR
+                <div class="text-xl md:text-2xl font-bold neon-text tech-font flex items-center gap-2">
+                    <i class="fas fa-bolt text-yellow-400"></i> 
+                    {% if about and about.name %}
+                        {{ about.name.upper() }}
+                    {% else %}
+                        FARHAN.SHAHRIAR
+                    {% endif %}
                 </div>
-                <!-- Desktop Links -->
                 <div class="hidden md:flex space-x-8 mono-font text-sm">
                     <a href="#about" class="hover:text-cyan-400 transition-colors">>> ABOUT</a>
                     <a href="#projects" class="hover:text-cyan-400 transition-colors">>> PROJECTS</a>
@@ -280,7 +215,6 @@
                     <a href="#thesis" class="hover:text-cyan-400 transition-colors">>> THESIS</a>
                     <a href="#contact" class="hover:text-yellow-400 transition-colors">>> CONTACT</a>
                 </div>
-                <!-- Mobile Menu Button -->
                 <div class="md:hidden text-cyan-400 cursor-pointer p-1" onclick="toggleMobileMenu()">
                     <i class="fas fa-bars text-2xl"></i>
                 </div>
@@ -289,7 +223,6 @@
 
         <!-- Hero Section -->
         <section class="min-h-screen flex flex-col justify-center items-center pt-20 relative overflow-hidden">
-            <!-- Oscilloscope Background -->
             <div class="absolute inset-0 opacity-20 pointer-events-none flex items-center justify-center">
                  <canvas id="osc-canvas"></canvas>
             </div>
@@ -298,12 +231,16 @@
                 <div class="inline-block border border-yellow-500 text-yellow-500 px-4 py-1 mb-4 mono-font text-xs md:text-sm tracking-widest">
                     <i class="fas fa-exclamation-triangle"></i> HIGH VOLTAGE AREA
                 </div>
-                <!-- Dynamic Hero Content -->
-                <h1 id="hero-name" class="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 text-white uppercase tracking-tighter leading-tight">
-                    Farhan <span class="text-cyan-400">Shahriar</span>
+                <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 text-white uppercase tracking-tighter leading-tight">
+                    {% if about and about.name %}
+                        {% set names = about.name.split(' ') %}
+                        {{ names[:-1]|join(' ') }} <span class="text-cyan-400">{{ names[-1] }}</span>
+                    {% else %}
+                        Farhan <span class="text-cyan-400">Shahriar</span>
+                    {% endif %}
                 </h1>
-                <h2 id="hero-title" class="text-lg sm:text-xl md:text-3xl text-gray-400 mb-8 mono-font px-4">
-                    Software Engineer
+                <h2 class="text-lg sm:text-xl md:text-3xl text-gray-400 mb-8 mono-font px-4">
+                    {{ about.degree if about and about.degree else 'Electrical Engineer & Circuit Designer' }}
                 </h2>
                 
                 <div class="flex flex-col sm:flex-row justify-center gap-4 px-8 sm:px-0">
@@ -315,7 +252,6 @@
                     </a>
                 </div>
             </div>
-
             <div class="absolute bottom-10 animate-bounce text-cyan-400">
                 <i class="fas fa-chevron-down text-2xl"></i>
             </div>
@@ -325,7 +261,6 @@
         <section id="about" class="py-16 md:py-20 bg-gray-900 relative">
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row gap-12 items-center">
-                    <!-- Tech Stack / Stats -->
                     <div class="w-full md:w-1/3 order-2 md:order-1">
                         <div class="bg-gray-800 p-6 border-l-4 border-cyan-400 shadow-lg relative overflow-hidden">
                             <div class="absolute top-0 right-0 p-2 text-cyan-800 text-6xl opacity-20">
@@ -333,26 +268,36 @@
                             </div>
                             <h3 class="text-xl neon-text mb-6 border-b border-gray-700 pb-2">TECHNICAL SPECS</h3>
                             
-                            <div id="skills-container" class="space-y-4 mono-font text-sm">
-                                <!-- Fallback Static Content (replaced by JS) -->
-                                <div class="loading-pulse text-gray-500">Loading modules...</div>
+                            <div class="space-y-4 mono-font text-sm">
+                                {% if skills %}
+                                    {% for skill in skills %}
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span>{{ skill.name }}</span>
+                                            <span class="{{ 'text-cyan-400' if skill.percentage > 85 else 'text-yellow-400' }}">{{ skill.percentage }}%</span>
+                                        </div>
+                                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full {{ 'bg-cyan-400 shadow-[0_0_10px_#00f3ff]' if skill.percentage > 85 else 'bg-yellow-400 shadow-[0_0_10px_#ffdd00]' }}" style="width: {{ skill.percentage }}%"></div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-gray-500">No skills data available.</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bio -->
                     <div class="w-full md:w-2/3 order-1 md:order-2">
                         <h2 class="text-3xl md:text-4xl font-bold mb-6 text-white tech-font">
                             <span class="text-yellow-400">//</span> ABOUT ME
                         </h2>
-                        <div id="about-content">
-                             <p class="text-gray-300 leading-relaxed text-base md:text-lg mb-6">
-                                I am a passionate Electrical Engineer specializing in power distribution, embedded systems, and renewable energy integration. My approach combines theoretical analysis with hands-on prototyping.
-                            </p>
-                            <p class="text-gray-400 mono-font border-l-2 border-yellow-500 pl-4 text-sm md:text-base">
-                                "Innovation is just a spark away from implementation."
-                            </p>
+                        <div class="text-gray-300 leading-relaxed text-base md:text-lg mb-6">
+                            {{ about.long_bio|safe if about and about.long_bio else 'Bio loading...' }}
                         </div>
+                        <p class="text-gray-400 mono-font border-l-2 border-yellow-500 pl-4 text-sm md:text-base">
+                            "{{ about.short_bio if about and about.short_bio else 'Innovation is just a spark away.' }}"
+                        </p>
                     </div>
                 </div>
             </div>
@@ -365,9 +310,32 @@
                     <span class="text-cyan-400">>></span> EXPERIENCE LOGS
                 </h2>
 
-                <div id="experience-timeline" class="relative timeline-line space-y-12 ml-2 md:ml-0">
-                    <!-- Dynamic Experience will load here -->
-                    <div class="text-center text-gray-500 loading-pulse">Fetching experience logs...</div>
+                <div class="relative timeline-line space-y-12 ml-2 md:ml-0">
+                    {% if experience %}
+                        {% for exp in experience %}
+                        <div class="relative pl-12 md:pl-0">
+                            <!-- Determine Left/Right based on loop index -->
+                            {% set is_right = loop.index0 % 2 == 0 %}
+                            <div class="{{ 'md:w-1/2 md:ml-auto md:pl-12' if is_right else 'md:w-1/2 md:pr-12 md:text-right' }} relative group">
+                                
+                                <!-- Mobile Dot -->
+                                <div class="absolute left-[-5px] top-1 w-4 h-4 bg-gray-900 border-2 border-cyan-400 rounded-full z-10 md:hidden"></div>
+                                
+                                <!-- Desktop Dot -->
+                                <div class="hidden md:block absolute top-1 w-4 h-4 bg-gray-900 border-2 border-cyan-400 rounded-full group-hover:bg-cyan-400 transition-colors z-10 {{ 'md:left-[-6px] md:translate-x-[-50%]' if is_right else 'md:right-[-6px] md:translate-x-[50%]' }}"></div>
+                                
+                                <div class="bg-gray-800 p-6 border border-gray-700 hover:border-cyan-400 transition-all duration-300 shadow-lg relative overflow-hidden">
+                                    <span class="absolute top-0 {{ 'right-0' if is_right else 'right-0 md:left-0 md:right-auto' }} bg-cyan-900 text-cyan-300 text-xs px-2 py-1 mono-font">{{ exp.year_range }}</span>
+                                    <h3 class="text-xl font-bold text-white mb-1">{{ exp.role }}</h3>
+                                    <p class="text-cyan-400 text-sm mono-font mb-4">{{ exp.company }}</p>
+                                    <p class="text-gray-400 text-sm">{{ exp.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-gray-500">No experience logs found.</div>
+                    {% endif %}
                 </div>
             </div>
         </section>
@@ -379,9 +347,28 @@
                     <span class="text-yellow-400">>></span> ACADEMIC DATA
                 </h2>
 
-                <div id="education-timeline" class="relative timeline-line space-y-12 ml-2 md:ml-0">
-                    <!-- Dynamic Education will load here -->
-                    <div class="text-center text-gray-500 loading-pulse">Retrieving academic records...</div>
+                <div class="relative timeline-line space-y-12 ml-2 md:ml-0">
+                    {% if education %}
+                        {% for edu in education %}
+                        <div class="relative pl-12 md:pl-0">
+                            {% set is_right = loop.index0 % 2 == 0 %}
+                            <div class="{{ 'md:w-1/2 md:ml-auto md:pl-12' if is_right else 'md:w-1/2 md:pr-12 md:text-right' }} relative group">
+                                
+                                <div class="absolute left-[-5px] top-1 w-4 h-4 bg-gray-900 border-2 border-yellow-400 rounded-full z-10 md:hidden"></div>
+                                <div class="hidden md:block absolute top-1 w-4 h-4 bg-gray-900 border-2 border-yellow-400 rounded-full group-hover:bg-yellow-400 transition-colors z-10 {{ 'md:left-[-6px] md:translate-x-[-50%]' if is_right else 'md:right-[-6px] md:translate-x-[50%]' }}"></div>
+                                
+                                <div class="bg-gray-800 p-6 border border-gray-700 hover:border-yellow-400 transition-all duration-300 shadow-lg relative overflow-hidden">
+                                    <span class="absolute top-0 {{ 'right-0' if is_right else 'right-0 md:left-0 md:right-auto' }} bg-yellow-900 text-yellow-300 text-xs px-2 py-1 mono-font">{{ edu.year_range }}</span>
+                                    <h3 class="text-xl font-bold text-white mb-1">{{ edu.degree }}</h3>
+                                    <p class="text-yellow-400 text-sm mono-font mb-4">{{ edu.institution }}</p>
+                                    <p class="text-gray-400 text-sm">{{ edu.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-gray-500">No academic records found.</div>
+                    {% endif %}
                 </div>
             </div>
         </section>
@@ -393,24 +380,67 @@
                     PROJECT <span class="text-yellow-400">SCHEMATICS</span>
                 </h2>
 
-                <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                     <!-- Dynamic Projects will load here -->
-                     <div class="col-span-full text-center text-gray-500 loading-pulse">Scanning schematics...</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {% if projects %}
+                        {% for proj in projects %}
+                        <div class="bg-gray-800 border border-gray-700 p-1 card-hover transition-all duration-300 group">
+                            <div class="bg-black p-4 h-full flex flex-col relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 {{ 'border-cyan-500' if proj.category == 'Web' else 'border-yellow-500' }}"></div>
+                                
+                                {% if proj.image_url %}
+                                <div class="h-32 mb-4 bg-cover bg-center opacity-70 group-hover:opacity-100 transition-opacity border-b border-gray-800" style="background-image: url('{{ proj.image_url }}');"></div>
+                                {% endif %}
+
+                                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{{ proj.title }}</h3>
+                                <p class="text-xs text-gray-500 mono-font mb-4">{{ proj.category or 'PROJECT' }}</p>
+                                <p class="text-gray-400 text-sm mb-6 flex-grow">Engineering/Dev Project</p>
+                                <div class="flex justify-between items-center border-t border-gray-800 pt-4 mt-auto">
+                                    <span class="text-xs text-yellow-500"><i class="fas fa-circle text-[8px] animate-pulse"></i> ONLINE</span>
+                                    <a href="{{ proj.project_link or '#' }}" target="_blank" class="text-cyan-400 hover:text-white"><i class="fas fa-external-link-alt fa-lg"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-span-full text-center text-gray-500">Schematics corrupted or missing.</div>
+                    {% endif %}
                 </div>
             </div>
         </section>
 
         <!-- Thesis Section -->
         <section id="thesis" class="py-16 md:py-20 relative overflow-hidden">
-            <!-- Background Decoration -->
             <div class="absolute -right-20 top-20 text-gray-800 opacity-20 transform rotate-12">
                 <i class="fas fa-book-open text-9xl"></i>
             </div>
 
             <div class="container mx-auto px-6 relative z-10">
-                <div id="thesis-container" class="max-w-4xl mx-auto border border-gray-700 bg-gray-800 bg-opacity-80 backdrop-blur p-4 md:p-8 rounded-sm">
-                    <!-- Dynamic Thesis content -->
-                    <div class="text-center text-gray-500 loading-pulse">Decrypting thesis data...</div>
+                <div class="max-w-4xl mx-auto border border-gray-700 bg-gray-800 bg-opacity-80 backdrop-blur p-4 md:p-8 rounded-sm">
+                    {% if theses and theses[0] %}
+                        {% set t = theses[0] %}
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 border-b border-gray-600 pb-4">
+                            <i class="fas fa-graduation-cap text-yellow-400 text-3xl"></i>
+                            <div>
+                                <h2 class="text-xl md:text-2xl font-bold text-white tech-font">BACHELOR'S THESIS</h2>
+                                <p class="text-sm text-gray-400 mono-font">Published: {{ t.publication_date }}</p>
+                            </div>
+                        </div>
+
+                        <h3 class="text-lg md:text-2xl text-cyan-400 font-bold mb-4">"{{ t.title }}"</h3>
+
+                        <div class="bg-black p-4 border border-gray-600 mb-6 font-mono text-xs md:text-sm text-green-400 h-32 overflow-y-auto custom-scrollbar">
+                            > LOAD_ABSTRACT...<br>
+                            {{ t.description.replace('\n', '<br>> ')|safe if t.description else '> No abstract available.' }}
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="{{ t.link or '#' }}" target="_blank" class="flex justify-center items-center gap-2 px-4 py-2 bg-cyan-900 text-cyan-400 hover:bg-cyan-400 hover:text-black transition-colors border border-cyan-400 text-sm font-bold w-full sm:w-auto">
+                                <i class="fas fa-download"></i> ACCESS DOCS
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-gray-500">Decrypting thesis data... (No record found)</div>
+                    {% endif %}
                 </div>
             </div>
         </section>
@@ -423,12 +453,44 @@
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <!-- Contact Info -->
-                    <div class="space-y-8 order-2 md:order-1" id="contact-info">
-                        <!-- Dynamic Contact Info -->
+                    <div class="space-y-8 order-2 md:order-1">
+                        {% if about.email %}
+                        <a href="mailto:{{ about.email }}" class="flex items-center gap-4 group cursor-pointer">
+                            <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center border border-cyan-400 text-cyan-400 group-hover:bg-cyan-400 group-hover:text-black transition-all">
+                                <i class="fas fa-envelope text-xl"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h4 class="text-gray-400 text-xs mono-font">EMAIL FREQUENCY</h4>
+                                <p class="text-white text-base md:text-lg truncate">{{ about.email }}</p>
+                            </div>
+                        </a>
+                        {% endif %}
+                        
+                        {% if about.phone %}
+                        <a href="tel:{{ about.phone }}" class="flex items-center gap-4 group cursor-pointer">
+                            <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center border border-cyan-400 text-cyan-400 group-hover:bg-cyan-400 group-hover:text-black transition-all">
+                                <i class="fas fa-phone text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-gray-400 text-xs mono-font">SIGNAL LINE</h4>
+                                <p class="text-white text-base md:text-lg">{{ about.phone }}</p>
+                            </div>
+                        </a>
+                        {% endif %}
+
+                        {% if about.website %}
+                        <a href="{{ about.website }}" target="_blank" class="flex items-center gap-4 group cursor-pointer">
+                            <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center border border-cyan-400 text-cyan-400 group-hover:bg-cyan-400 group-hover:text-black transition-all">
+                                <i class="fas fa-globe text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-gray-400 text-xs mono-font">WEB PORTAL</h4>
+                                <p class="text-white text-base md:text-lg">View Site</p>
+                            </div>
+                        </a>
+                        {% endif %}
                     </div>
 
-                    <!-- Contact Form -->
                     <form id="contact-form" class="bg-gray-800 p-6 border-t-4 border-yellow-500 shadow-xl order-1 md:order-2" onsubmit="handleContact(event)">
                         <h3 class="text-white mb-6 mono-font text-sm uppercase border-b border-gray-700 pb-2">Send Transmission</h3>
                         <div id="form-feedback" class="mb-4 text-sm hidden"></div>
@@ -461,11 +523,10 @@
             </div>
         </section>
 
-        <!-- Footer -->
         <footer class="bg-black py-8 border-t border-gray-800">
             <div class="container mx-auto px-6 text-center">
                 <p class="text-gray-600 text-sm mono-font">
-                    &copy; 2023 <span id="footer-name">Farhan Shahriar</span>. System nominal. <span class="text-green-500">● Online</span>
+                    &copy; 2023 <span id="footer-name">{{ about.name if about else 'Farhan Shahriar' }}</span>. System nominal. <span class="text-green-500">● Online</span>
                 </p>
             </div>
         </footer>
@@ -473,215 +534,16 @@
 
     <!-- JavaScript for Logic and FX -->
     <script>
-        /* --- Config --- */
-        // If Flask is running on localhost:5000, ensure CORS is enabled in app.py
-        // and pointing to port 5000.
-        // For production, this should be an empty string if served from same origin.
+        // No API_BASE needed for internal routes unless hosted externally
         const API_BASE = ''; 
 
-        /* --- Data Fetching Logic --- */
-        async function loadPortfolioData() {
-            try {
-                // Fetch All Data in parallel
-                const [about, skills, experience, education, projects, thesis] = await Promise.all([
-                    fetch(`${API_BASE}/api/about`).then(res => res.json()).catch(() => null),
-                    fetch(`${API_BASE}/api/skills`).then(res => res.json()).catch(() => []),
-                    fetch(`${API_BASE}/api/experience`).then(res => res.json()).catch(() => []),
-                    fetch(`${API_BASE}/api/education`).then(res => res.json()).catch(() => []),
-                    fetch(`${API_BASE}/api/projects`).then(res => res.json()).catch(() => []),
-                    fetch(`${API_BASE}/api/thesis`).then(res => res.json()).catch(() => [])
-                ]);
-
-                // 1. Render About
-                if (about) {
-                    if (about.name) {
-                        const nameParts = about.name.split(' ');
-                        const lastName = nameParts.pop();
-                        const firstName = nameParts.join(' ');
-                        document.getElementById('hero-name').innerHTML = `${firstName} <span class="text-cyan-400">${lastName}</span>`;
-                        document.getElementById('nav-brand').innerHTML = `<i class="fas fa-bolt text-yellow-400"></i> ${about.name.toUpperCase().replace(' ', '.')}`;
-                        document.getElementById('footer-name').innerText = about.name;
-                    }
-                    if (about.degree) document.getElementById('hero-title').innerText = about.degree;
-                    
-                    let aboutHTML = '';
-                    if (about.long_bio) aboutHTML += `<div class="text-gray-300 leading-relaxed text-base md:text-lg mb-6">${about.long_bio}</div>`;
-                    if (about.short_bio) aboutHTML += `<p class="text-gray-400 mono-font border-l-2 border-yellow-500 pl-4 text-sm md:text-base">"${about.short_bio}"</p>`;
-                    document.getElementById('about-content').innerHTML = aboutHTML;
-
-                    // Contact Info Side
-                    let contactHTML = '';
-                    if (about.email) contactHTML += renderContactItem('envelope', 'EMAIL FREQUENCY', about.email, `mailto:${about.email}`);
-                    if (about.phone) contactHTML += renderContactItem('phone', 'SIGNAL LINE', about.phone, `tel:${about.phone}`);
-                    if (about.website) contactHTML += renderContactItem('globe', 'WEB PORTAL', about.website, about.website);
-                    document.getElementById('contact-info').innerHTML = contactHTML;
-                }
-
-                // 2. Render Skills
-                if (skills && skills.length) {
-                    document.getElementById('skills-container').innerHTML = skills.map(skill => `
-                        <div>
-                            <div class="flex justify-between mb-1">
-                                <span>${skill.name}</span>
-                                <span class="${skill.percentage > 85 ? 'text-cyan-400' : 'text-yellow-400'}">${skill.percentage}%</span>
-                            </div>
-                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-                                <div class="h-full ${skill.percentage > 85 ? 'bg-cyan-400 shadow-[0_0_10px_#00f3ff]' : 'bg-yellow-400 shadow-[0_0_10px_#ffdd00]'}" style="width: ${skill.percentage}%"></div>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                // 3. Render Experience (Timeline)
-                const expContainer = document.getElementById('experience-timeline');
-                let expHTML = '';
-                
-                experience.forEach((exp, index) => {
-                    expHTML += renderTimelineItem({
-                        title: exp.role,
-                        subtitle: exp.company,
-                        year: exp.year_range,
-                        desc: exp.description,
-                        type: 'work',
-                        isRight: (index % 2 === 0) 
-                    });
-                });
-
-                if (expHTML) expContainer.innerHTML = expHTML;
-                else expContainer.innerHTML = '<div class="text-center text-gray-500">No logs found in system memory.</div>';
-
-                // 4. Render Education (Timeline)
-                const eduContainer = document.getElementById('education-timeline');
-                let eduHTML = '';
-
-                education.forEach((edu, index) => {
-                    eduHTML += renderTimelineItem({
-                        title: edu.degree,
-                        subtitle: edu.institution,
-                        year: edu.year_range,
-                        desc: edu.description,
-                        type: 'edu',
-                        isRight: (index % 2 === 0)
-                    });
-                });
-
-                if (eduHTML) eduContainer.innerHTML = eduHTML;
-                else eduContainer.innerHTML = '<div class="text-center text-gray-500">No academic data found.</div>';
-
-                // 5. Render Projects
-                const projectsContainer = document.getElementById('projects-grid');
-                if (projects && projects.length) {
-                    projectsContainer.innerHTML = projects.map(proj => `
-                        <div class="bg-gray-800 border border-gray-700 p-1 card-hover transition-all duration-300 group">
-                            <div class="bg-black p-4 h-full flex flex-col relative overflow-hidden">
-                                <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 ${proj.category === 'Web' ? 'border-cyan-500' : 'border-yellow-500'}"></div>
-                                
-                                ${proj.image_url ? `<div class="h-32 mb-4 bg-cover bg-center opacity-70 group-hover:opacity-100 transition-opacity border-b border-gray-800" style="background-image: url('${proj.image_url}');"></div>` : ''}
-
-                                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">${proj.title}</h3>
-                                <p class="text-xs text-gray-500 mono-font mb-4">${proj.category || 'PROJECT'}</p>
-                                <p class="text-gray-400 text-sm mb-6 flex-grow">
-                                    ${proj.category === 'Web' ? 'Web application' : 'Engineering project'} developed using modern stack.
-                                </p>
-                                <div class="flex justify-between items-center border-t border-gray-800 pt-4 mt-auto">
-                                    <span class="text-xs text-yellow-500"><i class="fas fa-circle text-[8px] animate-pulse"></i> ONLINE</span>
-                                    <a href="${proj.project_link || '#'}" target="_blank" class="text-cyan-400 hover:text-white"><i class="fas fa-external-link-alt fa-lg"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    projectsContainer.innerHTML = '<div class="col-span-full text-center text-gray-500">Schematics corrupted or missing.</div>';
-                }
-
-                // 6. Render Thesis
-                if (thesis && thesis.length > 0) {
-                    const t = thesis[0]; // Assuming one main thesis for now
-                    document.getElementById('thesis-container').innerHTML = `
-                        <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 border-b border-gray-600 pb-4">
-                            <i class="fas fa-graduation-cap text-yellow-400 text-3xl"></i>
-                            <div>
-                                <h2 class="text-xl md:text-2xl font-bold text-white tech-font">BACHELOR'S THESIS</h2>
-                                <p class="text-sm text-gray-400 mono-font">Published: ${t.publication_date || 'N/A'}</p>
-                            </div>
-                        </div>
-
-                        <h3 class="text-lg md:text-2xl text-cyan-400 font-bold mb-4">"${t.title}"</h3>
-
-                        <div class="bg-black p-4 border border-gray-600 mb-6 font-mono text-xs md:text-sm text-green-400 h-32 overflow-y-auto custom-scrollbar">
-                            > LOAD_ABSTRACT...<br>
-                            ${t.description ? t.description.replace(/\n/g, '<br>> ') : '> No data available.'}
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <a href="${t.link || '#'}" target="_blank" class="flex justify-center items-center gap-2 px-4 py-2 bg-cyan-900 text-cyan-400 hover:bg-cyan-400 hover:text-black transition-colors border border-cyan-400 text-sm font-bold w-full sm:w-auto">
-                                <i class="fas fa-download"></i> ACCESS DOCS
-                            </a>
-                        </div>
-                    `;
-                }
-
-            } catch (err) {
-                console.error("System Failure:", err);
-            }
-        }
-
-        /* --- Helper Render Functions --- */
-        function renderContactItem(icon, label, value, link) {
-             return `
-                <a href="${link}" class="flex items-center gap-4 group cursor-pointer">
-                    <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center border border-cyan-400 text-cyan-400 group-hover:bg-cyan-400 group-hover:text-black transition-all">
-                        <i class="fas fa-${icon} text-xl"></i>
-                    </div>
-                    <div class="overflow-hidden">
-                        <h4 class="text-gray-400 text-xs mono-font">${label}</h4>
-                        <p class="text-white text-base md:text-lg truncate">${value}</p>
-                    </div>
-                </a>`;
-        }
-
-        function renderTimelineItem({title, subtitle, year, desc, type, isRight}) {
-            const colorClass = type === 'work' ? 'cyan' : 'yellow'; // Work=Cyan, Edu=Yellow
-            
-            // Logic for Desktop Alignment (Right vs Left)
-            // Mobile always left (handled by CSS media queries in style)
-            const desktopClasses = isRight 
-                ? 'md:w-1/2 md:ml-auto md:pl-12' 
-                : 'md:w-1/2 md:pr-12 md:text-right';
-            
-            const dotPosition = isRight 
-                ? 'md:left-[-6px] md:translate-x-[-50%]' 
-                : 'md:right-[-6px] md:translate-x-[50%]';
-            
-            // These strings define the classes for the dots
-            const dotMobileClass = `absolute left-[-5px] top-1 w-4 h-4 bg-gray-900 border-2 border-${colorClass}-400 rounded-full z-10 md:hidden`;
-            const dotDesktopClass = `hidden md:block absolute top-1 w-4 h-4 bg-gray-900 border-2 border-${colorClass}-400 rounded-full group-hover:bg-${colorClass}-400 transition-colors z-10 ${dotPosition}`;
-
-            // FIX: We must wrap these class strings in <div class="..."> tags!
-            return `
-             <div class="relative pl-12 md:pl-0">
-                <div class="${desktopClasses} relative group">
-                    <div class="${dotMobileClass}"></div>
-                    <div class="${dotDesktopClass}"></div>
-                    
-                    <div class="bg-gray-800 p-6 border border-gray-700 hover:border-${colorClass}-400 transition-all duration-300 shadow-lg relative overflow-hidden">
-                        <span class="absolute top-0 ${isRight ? 'right-0' : 'right-0 md:left-0 md:right-auto'} bg-${colorClass}-900 text-${colorClass}-300 text-xs px-2 py-1 mono-font">${year || 'N/A'}</span>
-                        <h3 class="text-xl font-bold text-white mb-1">${title}</h3>
-                        <p class="text-${colorClass}-400 text-sm mono-font mb-4">${subtitle}</p>
-                        <p class="text-gray-400 text-sm">${desc || ''}</p>
-                    </div>
-                </div>
-            </div>`;
-        }
-
-        /* --- Contact Form Handler --- */
+        /* --- Contact Form Handler (Kept as JS for better UX) --- */
         async function handleContact(e) {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             const feedback = document.getElementById('form-feedback');
             const form = e.target;
             
-            // UI Loading State
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> TRANSMITTING...';
             btn.disabled = true;
 
@@ -749,10 +611,7 @@
                         content.classList.add('powered-on');
                         isPowered = true;
                         initOscilloscope();
-                        
-                        // FETCH DATA HERE
-                        loadPortfolioData();
-                        
+                        // No need to load data here, Jinja already did it!
                     }, 1000);
                 }, 500);
             }, 300);
@@ -796,7 +655,6 @@
                 ctx.shadowColor = '#00f3ff';
 
                 for (let x = 0; x < width; x++) {
-                    // Combine a few Sine waves for a complex signal look
                     const y = height / 2 + 
                               Math.sin((x * 0.02) + time) * 30 + 
                               Math.sin((x * 0.05) + time * 2) * 10;
@@ -820,11 +678,9 @@
             sparkHeight = sparkCanvas.height = window.innerHeight;
         });
 
-        // Click to generate spark
         document.addEventListener('click', (e) => {
             if(!isPowered) return;
             createSpark(e.clientX, e.clientY);
-            // playSound(100 + Math.random()*200, 0.1, 'sawtooth'); // Zap sound
         });
 
         let sparks = [];
@@ -833,65 +689,44 @@
             const branches = 3 + Math.random() * 3;
             for(let i=0; i<branches; i++) {
                 sparks.push({
-                    x: x,
-                    y: y,
-                    age: 0,
-                    life: 20 + Math.random() * 10,
-                    segments: [] // Stores the path
+                    x: x, y: y, age: 0, life: 20 + Math.random() * 10, segments: []
                 });
             }
         }
 
         function updateSparks() {
             sparkCtx.clearRect(0, 0, sparkWidth, sparkHeight);
-            
             for (let i = sparks.length - 1; i >= 0; i--) {
                 let s = sparks[i];
                 s.age++;
-
-                // Grow the spark
                 if(s.age < s.life) {
                     let lastX = s.segments.length > 0 ? s.segments[s.segments.length-1].x : s.x;
                     let lastY = s.segments.length > 0 ? s.segments[s.segments.length-1].y : s.y;
-                    
-                    // Random jagged movement
                     let nextX = lastX + (Math.random() - 0.5) * 50;
                     let nextY = lastY + (Math.random() - 0.5) * 50;
-                    
                     s.segments.push({x: nextX, y: nextY});
                 }
-
-                // Draw
                 sparkCtx.beginPath();
                 sparkCtx.strokeStyle = `rgba(255, 221, 0, ${1 - s.age/s.life})`;
                 sparkCtx.lineWidth = 2;
                 sparkCtx.shadowBlur = 10;
                 sparkCtx.shadowColor = '#ffff00';
-                
                 sparkCtx.moveTo(s.x, s.y);
-                for(let seg of s.segments) {
-                    sparkCtx.lineTo(seg.x, seg.y);
-                }
+                for(let seg of s.segments) { sparkCtx.lineTo(seg.x, seg.y); }
                 sparkCtx.stroke();
-
-                if (s.age >= s.life) {
-                    sparks.splice(i, 1);
-                }
+                if (s.age >= s.life) { sparks.splice(i, 1); }
             }
             requestAnimationFrame(updateSparks);
         }
         
         updateSparks();
 
-        // Random background sparks occasionally
         setInterval(() => {
             if(!isPowered) return;
             if(Math.random() > 0.8) {
-                // Create a small spark somewhere
                 createSpark(Math.random() * sparkWidth, Math.random() * sparkHeight);
             }
         }, 2000);
-
     </script>
 </body>
 </html>
